@@ -288,7 +288,7 @@ static void myhexdump(void *_data, int len)
     for (count = 0; count < len; count++) {
         if ((count & 15) == 0)
             printf("%04zu:", count);
-        printf(" %02x %c", *data,
+        printf(stderr," %02x %c", *data,
                 (*data < 32) || (*data > 126) ? '.' : *data);
         data++;
         if ((count & 15) == 15)
