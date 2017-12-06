@@ -288,7 +288,7 @@ static void myhexdump(void *_data, int len)
     for (count = 0; count < len; count++) {
         if ((count & 15) == 0)
             printf("%04zu:", count);
-        printf(stderr," %02x %c", *data,
+        printf(" %02x %c", *data,
                 (*data < 32) || (*data > 126) ? '.' : *data);
         data++;
         if ((count & 15) == 15)
@@ -317,6 +317,7 @@ static void hexdump(char *pfx, void *msg, int msglen)
 
 	if (col % 16 != 0)
 		printf("%s\n", buf);*/
+	if(msglen > 0)
 	printf("%s\n",pfx);
 	myhexdump(msg,msglen);
 }

@@ -317,8 +317,11 @@ static void hexdump(char *pfx, void *msg, int msglen)
 
 	if (col % 16 != 0)
 		printf("%s\n", buf);*/
-	printf("%s\n",pfx);
-	myhexdump(msg,msglen);
+	if(msglen > 0)
+	{
+		printf("%s\n",pfx);
+		myhexdump(msg,msglen);
+	}
 }
 
 
