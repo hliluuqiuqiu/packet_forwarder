@@ -281,6 +281,28 @@ void thread_valid(void);
 /* -------------------------------------------------------------------------- */
 /* --- PRIVATE FUNCTIONS DEFINITION ----------------------------------------- */
 
+static void hexdump(char *pfx, unsigned char *msg, int msglen)
+{
+	int i, col;
+	char buf[80];
+
+	col = 0;
+
+	for (i = 0; i < msglen; i++, col++) {
+		if (col % 16 == 0)
+			strcpy(buf, pfx);
+		sprintf(buf + strlen(buf), "%02x", msg[i]);
+		if ((col + 1) % 16 == 0)
+			printf("%s\n", buf);
+		else
+			sprintf(buf + strlen(buf), " ");
+	}
+
+	if (col % 16 != 0)
+		printf("%s\n", buf);
+}
+
+
 static void sig_handler(int sigio) {
 	if (sigio == SIGQUIT) {
 		quit_sig = true;;
@@ -1886,6 +1908,7 @@ void thread_up(void) {
 
 			send(sock_up[ic], (void *)buff_up, buff_index, 0);
 			clock_gettime(CLOCK_MONOTONIC, &send_time);
+			hexdump(" up thread: ",(void *)buff_up,buff_index);
 			pthread_mutex_lock(&mx_meas_up);
 			meas_up_dgram_sent += 1;
 			meas_up_network_byte += buff_index;
@@ -1894,6 +1917,7 @@ void thread_up(void) {
 			for (i=0; i<2; ++i) {
 				j = recv(sock_up[ic], (void *)buff_ack, sizeof buff_ack, 0);
 				clock_gettime(CLOCK_MONOTONIC, &recv_time);
+				hexdump("up recv :",(void *)buff_ack,j);
 				if (j == -1) {
 					if (errno == EAGAIN) { /* timeout */
 						continue;
@@ -2055,6 +2079,7 @@ void thread_down(void* pic) {
 		/* send PULL request and record time */
 		send(sock_down[ic], (void *)buff_req, sizeof buff_req, 0);
 		clock_gettime(CLOCK_MONOTONIC, &send_time);
+		hexdump("down send",(void *)buff_req,sizeof buff_req);
 		pthread_mutex_lock(&mx_meas_dw);
 		meas_dw_pull_sent += 1;
 		pthread_mutex_unlock(&mx_meas_dw);
@@ -2068,7 +2093,7 @@ void thread_down(void* pic) {
 			/* try to receive a datagram */
 			msg_len = recv(sock_down[ic], (void *)buff_down, (sizeof buff_down)-1, 0);
 			clock_gettime(CLOCK_MONOTONIC, &recv_time);
-			
+			hexdump("down recv :",(void *)buff_down,msg_len);
 			/* if beacon must be prepared, load it and wait for it to trigger */
 			//TODO: this should only be present in one thread => make special beacon thread?
 			//TODO: beacon can also work on local time base, implement.
